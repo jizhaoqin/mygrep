@@ -159,3 +159,5 @@ eval "$(atuin init zsh)"
 [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
 
 [ -f "/home/jizhao/.ghcup/env" ] && source "/home/jizhao/.ghcup/env" # ghcup-env
+
+ALiAse = test
