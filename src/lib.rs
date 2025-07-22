@@ -26,43 +26,31 @@ impl Config {
 
 pub fn run(config: Config) -> Result<(), Box<dyn Error>> {
     let contents = fs::read_to_string(config.file_path)?;
+    let result = search(&config.target, &contents, config.ignore_case);
 
-    let result = match config.ignore_case {
-        true => search_ignore_case(&config.target, &contents),
-        false => search_case_sensitive(&config.target, &contents),
-    };
-
-    if config.show_line_number {
-        for (i, line) in result.iter() {
+    for (i, line) in result.iter() {
+        if config.show_line_number {
             println!("{i}:{line}");
-        }
-    } else {
-        for (_i, line) in result.iter() {
+        } else {
             println!("{line}");
         }
     }
     Ok(())
 }
 
-pub fn search_case_sensitive<'a>(target: &str, contents: &'a str) -> Vec<(usize, &'a str)> {
-    let mut results = Vec::new();
-    for (i, line) in contents.lines().enumerate() {
-        if line.contains(target) {
-            results.push((i + 1, line));
-        }
-    }
-    results
-}
-
-pub fn search_ignore_case<'a>(target: &str, contents: &'a str) -> Vec<(usize, &'a str)> {
-    let mut results = Vec::new();
-    let target = target.to_lowercase();
-    for (i, line) in contents.lines().enumerate() {
-        if line.to_lowercase().contains(&target) {
-            results.push((i + 1, line));
-        }
-    }
-    results
+pub fn search<'a>(target: &str, contents: &'a str, ignore_case: bool) -> Vec<(usize, &'a str)> {
+    contents
+        .lines()
+        .enumerate()
+        .filter(|(_, line)| {
+            if ignore_case {
+                line.to_lowercase().contains(&target.to_lowercase())
+            } else {
+                line.contains(target)
+            }
+        })
+        .map(|(i, line)| (i + 1, line))
+        .collect()
 }
 
 // TDD: Test Driven Development
@@ -79,12 +67,12 @@ export VISUAL=nvim
 export PAGER=less";
         assert_eq!(
             vec![(3, "export PAGER=less")],
-            search_case_sensitive(target, contents)
+            search(target, contents, false)
         );
         let target = "nvim";
         assert_eq!(
             vec![(1, "export EDITOR=nvim"), (2, "export VISUAL=nvim")],
-            search_case_sensitive(target, contents)
+            search(target, contents, false)
         );
     }
 
@@ -97,7 +85,7 @@ export VISUAL=nvim
 export PAGER=less";
         assert_eq!(
             vec![(3, "export PAGER=less")],
-            search_ignore_case(target, contents)
+            search(target, contents, true)
         );
     }
 }
