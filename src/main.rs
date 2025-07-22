@@ -9,7 +9,7 @@ fn main() {
         process::exit(1);
     });
 
-    let _ = mygrep::run(config).unwrap_or_else(|err| {
+    mygrep::run(config).unwrap_or_else(|err| {
         println!("Error found when opening file: {}", err);
         process::exit(1);
     });

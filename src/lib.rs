@@ -32,18 +32,15 @@ pub fn run(config: Config) -> Result<(), Box<dyn Error>> {
         false => search_case_sensitive(&config.target, &contents),
     };
 
-    let _ = match config.show_line_number {
-        true => {
-            for (i, line) in result.iter() {
-                println!("{i}:{line}");
-            }
+    if config.show_line_number {
+        for (i, line) in result.iter() {
+            println!("{i}:{line}");
         }
-        false => {
-            for (_i, line) in result.iter() {
-                println!("{line}");
-            }
+    } else {
+        for (_i, line) in result.iter() {
+            println!("{line}");
         }
-    };
+    }
     Ok(())
 }
 
